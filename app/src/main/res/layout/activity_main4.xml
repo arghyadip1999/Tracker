@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/my_bg_anim"
+    android:background="@drawable/group"
     tools:context=".Main4Activity"
     android:id="@+id/signupverify">
 
@@ -21,9 +21,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:fontFamily="@font/pt_sans_caption_bold"
+        android:fontFamily="@font/anton"
         android:text="Sign Up"
-        android:textColor="#FFFFFF"
+        android:textColor="#D3FE4B"
         android:textSize="35sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -48,9 +48,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/pt_sans_caption_bold"
+        android:fontFamily="@font/anton"
         android:text="Phone Number"
-        android:textColor="#FFFFFF"
+        android:textColor="#B9D3FE4B"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline26"
         app:layout_constraintStart_toStartOf="@id/guideline24" />
@@ -79,9 +79,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/pt_sans_caption_bold"
+        android:fontFamily="@font/anton"
         android:text="Password"
-        android:textColor="#FFFFFF"
+        android:textColor="#B9D3FE4B"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline27"
         app:layout_constraintStart_toStartOf="@id/guideline24" />
@@ -92,7 +92,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="20dp"
-        app:layout_constraintGuide_percent="0.35" />
+        app:layout_constraintGuide_percent="0.345" />
 
     <EditText
         android:id="@+id/passwordSignUp"
@@ -110,9 +110,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/pt_sans_caption_bold"
+        android:fontFamily="@font/anton"
         android:text="Confirm Password"
-        android:textColor="#FFFFFF"
+        android:textColor="#B9D3FE4B"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline28"
         app:layout_constraintStart_toStartOf="@id/guideline24" />
@@ -145,16 +145,17 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="20dp"
         app:layout_constraintGuide_percent="0.69"/>
+
     <Button
         android:id="@+id/verifySignUpButton"
         android:layout_width="140dp"
         android:layout_height="53dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:background="@drawable/ic_signin"
-        android:fontFamily="@font/pt_sans_caption_bold"
-        android:text="Verify"
+        android:background="@drawable/ic_ok"
+        android:fontFamily="@font/anton"
         android:paddingBottom="5dp"
+        android:text="Verify"
         android:textSize="17sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline29"
         app:layout_constraintEnd_toEndOf="parent"

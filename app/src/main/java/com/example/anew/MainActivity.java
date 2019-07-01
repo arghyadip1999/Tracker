@@ -11,14 +11,14 @@ import android.widget.VideoView;
 public class MainActivity extends AppCompatActivity {
 
     private VideoView videoBG;
-    MediaPlayer mMediaPlayer;
-    int mCurrentVideoPosition;
+    //MediaPlayer mMediaPlayer;
+    //int mCurrentVideoPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        videoBG = (VideoView) findViewById(R.id.videoView);
+        /*videoBG = (VideoView) findViewById(R.id.videoView);
 
         Uri uri = Uri.parse("android.resource://"
                 + getPackageName()
@@ -39,9 +39,9 @@ public class MainActivity extends AppCompatActivity {
                     mMediaPlayer.start();
                 }
             }
-        });
+        });*/
     }
-    @Override
+    /*@Override
     protected void onPause() {
         super.onPause();
         mCurrentVideoPosition = mMediaPlayer.getCurrentPosition();
@@ -61,15 +61,15 @@ public class MainActivity extends AppCompatActivity {
 
         mMediaPlayer.release();
         mMediaPlayer = null;
-    }
+    }*/
 
     public void openActivity2(View view){
         Intent intent = new Intent(this, Main2Activity.class);
         startActivity(intent);
 
     }
-    public void openActivity3(View view){
-        Intent intent = new Intent(this, Main3Activity.class);
+    public void openActivity4(View view){
+        Intent intent = new Intent(this, Main4Activity.class);
         startActivity(intent);
 
     }

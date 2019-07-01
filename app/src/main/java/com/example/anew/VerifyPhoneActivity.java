@@ -57,8 +57,6 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                     return;
 
                 }
-
-
                 verifyCode(code);
 
             }
@@ -91,7 +89,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
     }
 
     private void sendVerificationCode(String number) {
-        progressBar.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.INVISIBLE);
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 number,
                 60,

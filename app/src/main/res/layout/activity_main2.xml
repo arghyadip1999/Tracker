@@ -5,7 +5,7 @@
     android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/my_bg_anim"
+    android:background="@drawable/group"
     tools:context=".Main2Activity">
 
     <android.support.constraint.Guideline
@@ -21,9 +21,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:fontFamily="@font/pt_sans_caption_bold"
-        android:text="Log In"
-        android:textColor="#FFFFFF"
+        android:fontFamily="@font/anton"
+        android:text="Sign In"
+        android:textColor="#D3FE4B"
         android:textSize="35sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -32,9 +32,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/pt_sans_caption_bold"
+        android:fontFamily="@font/anton"
         android:text="Phone Number"
-        android:textColor="#FFFFFF"
+        android:textColor="#B9D3FE4B"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline9"
         app:layout_constraintStart_toStartOf="@id/guideline13" />
@@ -54,8 +54,8 @@
         android:layout_marginTop="8dp"
         android:background="@drawable/ic_enter"
         android:inputType="phone"
-        android:textColor="#252525"
         android:paddingLeft="12dp"
+        android:textColor="#252525"
         app:layout_constraintEnd_toStartOf="@+id/guideline14"
         app:layout_constraintStart_toStartOf="@+id/guideline13"
         app:layout_constraintTop_toTopOf="@+id/guideline9" />
@@ -63,9 +63,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/pt_sans_caption_bold"
+        android:fontFamily="@font/anton"
         android:text="Password"
-        android:textColor="#FFFFFF"
+        android:textColor="#B9D3FE4B"
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/guideline10"
         app:layout_constraintStart_toStartOf="@id/guideline13" />
@@ -76,7 +76,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         app:layout_constraintGuide_begin="20dp"
-        app:layout_constraintGuide_percent="0.35" />
+        app:layout_constraintGuide_percent="0.36" />
 
     <EditText
         android:id="@+id/passwordLogIn"
@@ -97,11 +97,12 @@
         android:layout_height="53dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:background="@drawable/ic_signin"
-        android:fontFamily="@font/pt_sans_caption_bold"
-        android:text="Log In"
+        android:background="@drawable/ic_ok"
+        android:fontFamily="@font/anton"
         android:paddingBottom="5dp"
+        android:text="Log In"
         android:textSize="17sp"
+        android:onClick="openProfileActivity"
         app:layout_constraintBottom_toTopOf="@+id/guideline11"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -119,11 +120,11 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:fontFamily="@font/pt_sans_caption_bold"
-        android:text="Having Trouble Logging In ? Get help here."
-        android:textColor="#FFFFFF"
-        android:textSize="13sp"
+        android:fontFamily="@font/anton"
         android:paddingTop="20dp"
+        android:text="Having Trouble Logging In ? Get help here."
+        android:textColor="#B9D3FE4B"
+        android:textSize="13sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/guideline11" />

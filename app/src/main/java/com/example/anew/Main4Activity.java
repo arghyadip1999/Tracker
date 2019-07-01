@@ -1,7 +1,6 @@
 package com.example.anew;
 
 import android.content.Intent;
-import android.graphics.drawable.AnimationDrawable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,7 +13,7 @@ public class Main4Activity extends AppCompatActivity {
 
 
     ConstraintLayout constraintLayout;
-    AnimationDrawable animationDrawable;
+
 
 
     @Override
@@ -22,10 +21,7 @@ public class Main4Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main4);
         constraintLayout = findViewById(R.id.signupverify);
-        animationDrawable = (AnimationDrawable)constraintLayout.getBackground();
-        animationDrawable.setEnterFadeDuration(100);
-        animationDrawable.setExitFadeDuration(4000);
-        animationDrawable.start();
+
 
 
         // OTP Verification Part Begins

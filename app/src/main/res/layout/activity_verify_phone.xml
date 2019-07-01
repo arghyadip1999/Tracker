@@ -1,21 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/group">
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guidelineh0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="20dp"
+        app:layout_constraintGuide_percent="0.05" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:fontFamily="@font/anton"
+        android:text="Verify"
+        android:textColor="#D3FE4B"
+        android:textSize="35sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/guidelineh0" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:fontFamily="@font/anton"
+        android:text="Enter OTP here"
+        android:textColor="#B9D3FE4B"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/guidelineh1"
+        app:layout_constraintStart_toStartOf="@+id/guidelinev1" />
 
 
     <EditText
         android:id="@+id/get_otp"
-        android:layout_width="95dp"
-        android:layout_height="65dp"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
         android:layout_alignEnd="@+id/sign_in_button"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="187dp"
-        android:hint="Enter OTP"
-        tools:layout_editor_absoluteX="141dp"
-        tools:layout_editor_absoluteY="201dp" />
+        android:layout_marginTop="8dp"
+        android:paddingLeft="12dp"
+        android:background="@drawable/ic_enter"
+        app:layout_constraintEnd_toStartOf="@+id/guidelinev2"
+        app:layout_constraintStart_toStartOf="@+id/guidelinev1"
+        app:layout_constraintTop_toTopOf="@+id/guidelineh1" />
 
     <Button
         android:id="@+id/sign_in_button"
@@ -23,10 +57,16 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="185dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:fontFamily="@font/anton"
         android:text="SIGN IN"
-        tools:layout_editor_absoluteX="141dp"
-        tools:layout_editor_absoluteY="287dp" />
+        android:textSize="17sp"
+        android:paddingBottom="5dp"
+        android:background="@drawable/ic_ok"
+        app:layout_constraintEnd_toStartOf="@+id/guidelinev2"
+        app:layout_constraintStart_toStartOf="@+id/guidelinev1"
+        app:layout_constraintTop_toTopOf="@+id/guidelineh2" />
 
     <ProgressBar
 
@@ -36,6 +76,37 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:visibility="gone"
-        android:layout_marginBottom="115dp" />
-</RelativeLayout>
+        android:layout_marginBottom="115dp"
+        android:visibility="gone" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guidelinev1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="20dp"
+        app:layout_constraintGuide_percent="0.04" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guidelinev2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="20dp"
+        app:layout_constraintGuide_percent="0.96" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guidelineh1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="20dp"
+        app:layout_constraintGuide_percent="0.22"/>
+    <android.support.constraint.Guideline
+        android:id="@+id/guidelineh2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="20dp"
+        app:layout_constraintGuide_percent="0.36"/>
+</android.support.constraint.ConstraintLayout>

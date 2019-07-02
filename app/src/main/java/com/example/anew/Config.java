@@ -10,4 +10,5 @@ public class Config {
     public static final String LOGIN_FAILURE = "login failure";
     public static final String SHARED_PREF_NAME = "myloginapp";
     public static final String REGISTRATION_SUCCESS = "Registration success";
+    public static String upload = "http://localhost:3000/signup";
 }

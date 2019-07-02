@@ -3,6 +3,7 @@ package com.example.anew;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.hardware.Camera;
@@ -24,8 +25,15 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+
 import java.text.DecimalFormat;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.example.anew.MeasureActivity.c;
 
 
 public class ProfileActivity extends AppCompatActivity implements SensorEventListener, StepListener {
@@ -56,6 +64,7 @@ public class ProfileActivity extends AppCompatActivity implements SensorEventLis
     private static TextView heartBeatText = null;
 
     private static PowerManager.WakeLock wakeLock = null;
+    private String number;
 
     private static int averageIndex = 0;
     private static final int averageArraySize = 4;
@@ -84,7 +93,7 @@ public class ProfileActivity extends AppCompatActivity implements SensorEventLis
         setContentView(R.layout.activity_profile);
 
         Typeface font = Typeface.createFromAsset(getAssets(), "fonts/Anton-Regular.ttf");
-        String number = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("LAST_MEASURE", "0");
+        number = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("LAST_MEASURE", "0");
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accel = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -117,7 +126,7 @@ public class ProfileActivity extends AppCompatActivity implements SensorEventLis
                     BtnStart.setImageResource(R.drawable.ic_stopbtn);
                     logoOff.setImageResource(R.drawable.ic_logoon);
                     chronometer.setVisibility(View.VISIBLE);
-
+                    findViewById(R.id.heart_button).setEnabled(false);
                     resetChronometer();
                     startChronometer();
                     numSteps = 0;
@@ -128,9 +137,15 @@ public class ProfileActivity extends AppCompatActivity implements SensorEventLis
                     isOn = false;
                     BtnStart.setImageResource(R.drawable.ic_startbtn);
                     logoOff.setImageResource(R.drawable.ic_profilelogo);
-
+                    findViewById(R.id.heart_button).setEnabled(true);
                     stopChronometer();
                     sensorManager.unregisterListener(ProfileActivity.this);
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(ProfileActivity.this);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("Steps", TvSteps.getText().toString());
+                    editor.putString("Calories", TvCalories.getText().toString());
+                    editor.putString("Distance", TvDist.getText().toString());
+                    editor.apply();
 
                 }
 
@@ -173,6 +188,8 @@ public class ProfileActivity extends AppCompatActivity implements SensorEventLis
         TvCalories.setText(""+df2.format(calories));
         TvDist.setText(""+df2.format(distance)+" m");
 
+
+
     }
 
     public void startChronometer(){
@@ -203,6 +220,7 @@ public class ProfileActivity extends AppCompatActivity implements SensorEventLis
 
 
     public void heart(View view){
+        findViewById(R.id.heart_button).setEnabled(false);
         Intent intent = new Intent(ProfileActivity.this, MeasureActivity.class);
         startActivity(intent);
     }
@@ -212,6 +230,27 @@ public class ProfileActivity extends AppCompatActivity implements SensorEventLis
         super.onResume();
         String number = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("LAST_MEASURE", "0");
         heartBeatText.setText(number);
+        findViewById(R.id.heart_button).setEnabled(true);
+//        StringRequest request = new StringRequest(Request.Method.POST, Config.upload, new Response.Listener<String>() {
+//            @Override
+//            public void onResponse(String response) {
+//
+//            }
+//        }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//
+//            }
+//        })
+//        {
+//
+//        };
+
+
+
+        TvSteps.setText(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("Steps", "0"));
+        TvCalories.setText(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("Calories", "0"));
+        TvDist.setText(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("Distance", "0m"));
     }
 }
 

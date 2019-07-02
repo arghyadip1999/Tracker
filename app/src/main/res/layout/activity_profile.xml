@@ -11,7 +11,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="fitXY"
-        android:src="@drawable/profileback" />
+        android:src="@drawable/profileback"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline"
@@ -42,18 +44,29 @@
         android:visibility="visible"
         app:layout_constraintStart_toStartOf="@+id/guideline2"
         app:layout_constraintTop_toTopOf="@+id/guideline" />
+
     <TextView
         android:layout_width="63dp"
         android:layout_height="wrap_content"
-        android:textAlignment="viewEnd"
-        android:text="RESET"
-        android:onClick="resetFunction"
+        android:layout_marginEnd="35dp"
         android:fontFamily="@font/anton"
+        android:onClick="resetFunction"
+        android:text="RESET"
+        android:textAlignment="viewEnd"
         android:textColor="#FFFFFF"
         android:textSize="18sp"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="@+id/guideline5"
-        app:layout_constraintTop_toTopOf="@+id/guideline"/>
+        app:layout_constraintTop_toTopOf="@+id/guideline" />
+
+    <ImageView
+        android:id="@+id/logout_menu"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginTop="3.85dp"
+        android:src="@drawable/ic_more_vert_black_24dp"
+        app:layout_constraintEnd_toEndOf="@+id/guideline5"
+        app:layout_constraintTop_toTopOf="@+id/guideline" />
 
 
 
@@ -70,8 +83,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_begin="20dp"
-        app:layout_constraintGuide_percent="0.89" />
+        app:layout_constraintGuide_begin="367dp" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline6"

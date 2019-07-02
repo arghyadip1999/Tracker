@@ -90,8 +90,9 @@ public class Main2Activity extends AppCompatActivity {
                             //Starting profile activity
 
                             Intent intent = new Intent(Main2Activity.this, ProfileActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
-                            finish();
+
 
                         }else{
                             //If the server response is not success

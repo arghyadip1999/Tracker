@@ -18,6 +18,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.PopupMenu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
@@ -223,6 +226,34 @@ public class ProfileActivity extends AppCompatActivity implements SensorEventLis
         findViewById(R.id.heart_button).setEnabled(false);
         Intent intent = new Intent(ProfileActivity.this, MeasureActivity.class);
         startActivity(intent);
+    }
+
+    public void showPopup(View v) {
+        PopupMenu popup = new PopupMenu(this, v);
+        MenuInflater inflater = popup.getMenuInflater();
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.logout:
+                        SharedPreferences sharedPreferences = getSharedPreferences(Config.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putBoolean(Config.LOGGEDIN_SHARED_PREF, false);
+                        editor.putString(Config.ID, "");
+                        //editor.putString(Config.TYPE, "none");
+                        editor.commit();
+                        Intent intent = new Intent(ProfileActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        finish();
+                        break;
+
+
+                }
+                return false;
+            }
+        });
+        inflater.inflate(R.menu.log_out_menu, popup.getMenu());
+        popup.show();
     }
 
     @Override

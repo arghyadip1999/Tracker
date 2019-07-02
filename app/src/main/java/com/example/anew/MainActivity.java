@@ -1,6 +1,7 @@
 package com.example.anew;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
@@ -14,10 +15,24 @@ public class MainActivity extends AppCompatActivity {
     //MediaPlayer mMediaPlayer;
     //int mCurrentVideoPosition;
 
+    private boolean login;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences preferences = getSharedPreferences(Config.SHARED_PREF_NAME,0);
+        login = preferences.getBoolean(Config.LOGGEDIN_SHARED_PREF, false);
+
+        if(login){
+            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+            startActivity(intent);
+            finish();
+        }
+
         setContentView(R.layout.activity_main);
+
+
         /*videoBG = (VideoView) findViewById(R.id.videoView);
 
         Uri uri = Uri.parse("android.resource://"
@@ -62,6 +77,9 @@ public class MainActivity extends AppCompatActivity {
         mMediaPlayer.release();
         mMediaPlayer = null;
     }*/
+
+
+
 
     public void openActivity2(View view){
         Intent intent = new Intent(this, Main2Activity.class);

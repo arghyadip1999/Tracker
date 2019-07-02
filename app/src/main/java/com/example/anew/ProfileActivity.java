@@ -1,6 +1,9 @@
 package com.example.anew;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.hardware.Camera;
 import android.hardware.Sensor;
@@ -9,9 +12,13 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -37,6 +44,8 @@ public class ProfileActivity extends AppCompatActivity implements SensorEventLis
     boolean isOn = false;
     private boolean running;
     private long pauseOffset;
+    private Button heartButton;
+
 
 
     //For Heart Rate Monitor
@@ -75,6 +84,7 @@ public class ProfileActivity extends AppCompatActivity implements SensorEventLis
         setContentView(R.layout.activity_profile);
 
         Typeface font = Typeface.createFromAsset(getAssets(), "fonts/Anton-Regular.ttf");
+        String number = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("LAST_MEASURE", "0");
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accel = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -88,6 +98,14 @@ public class ProfileActivity extends AppCompatActivity implements SensorEventLis
         logoOff = findViewById(R.id.logoOff);
         chronometer = findViewById(R.id.chronometer);
         chronometer.setTypeface(font, Typeface.NORMAL);
+
+        heartBeatText = findViewById(R.id.heartBeatText);
+
+        heartBeatText.setText(number);
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 0);
+        }
 
 
 
@@ -184,8 +202,16 @@ public class ProfileActivity extends AppCompatActivity implements SensorEventLis
     }
 
 
+    public void heart(View view){
+        Intent intent = new Intent(ProfileActivity.this, MeasureActivity.class);
+        startActivity(intent);
+    }
 
-
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String number = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString("LAST_MEASURE", "0");
+        heartBeatText.setText(number);
+    }
 }
 

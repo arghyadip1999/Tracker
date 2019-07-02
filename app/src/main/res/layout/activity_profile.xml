@@ -279,6 +279,8 @@
         app:layout_constraintGuide_percent="0.82" />
 
     <Button
+        android:id="@+id/heart_button"
+        android:onClick="heart"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@drawable/ic_measurebtn"

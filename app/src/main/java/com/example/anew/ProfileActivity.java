@@ -36,7 +36,6 @@ import com.android.volley.toolbox.StringRequest;
 import java.text.DecimalFormat;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.example.anew.MeasureActivity.c;
 
 
 public class ProfileActivity extends AppCompatActivity implements SensorEventListener, StepListener {

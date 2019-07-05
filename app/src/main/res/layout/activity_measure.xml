@@ -10,10 +10,20 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MeasureActivity">
 
-    <SurfaceView android:id="@+id/preview"
+    <TextureView android:id="@+id/preview"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="400dp"
         android:layout_alignParentTop="true">
-    </SurfaceView>
+    </TextureView>
+
+    <TextView
+        android:id="@+id/textview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/preview"
+        android:fontFamily="@font/pt_sans_caption_bold"
+        android:textSize="25sp"
+        android:paddingTop="25dp"
+        android:text="Place Your finger very gently infront of the camera"/>
 
 </RelativeLayout>

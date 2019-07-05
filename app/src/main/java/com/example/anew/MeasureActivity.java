@@ -1,285 +1,309 @@
 package com.example.anew;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.hardware.Camera;
-import android.media.Image;
-import android.media.ImageReader;
-import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
+import android.graphics.SurfaceTexture;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CameraMetadata;
+import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.Display;
+import android.util.Size;
 import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
-import android.view.WindowManager;
-import android.hardware.Camera.PreviewCallback;
+import android.view.TextureView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.concurrent.atomic.AtomicBoolean;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
-public class MeasureActivity extends AppCompatActivity implements SurfaceHolder.Callback {
+public class MeasureActivity extends AppCompatActivity {
+    public String usermail1;
+    private FirebaseAuth.AuthStateListener authListener;
+    private FirebaseAuth auth;
+    private FirebaseUser usermail;
+    private static final String TAG = "MeasureActivity";
+    private TextureView textureView; //TextureView to deploy camera data
+    private String cameraId;
+    protected CameraDevice cameraDevice;
+    protected CameraCaptureSession cameraCaptureSessions;
+    protected CaptureRequest.Builder captureRequestBuilder;
+    private Size imageDimension;
+    private static final int REQUEST_CAMERA_PERMISSION = 1;
 
-    SurfaceHolder mSurfaceHolder;
-    SurfaceView mSurfaceView;
-    public Camera mCamera;
-    boolean mPreviewRunning;
+    // Thread handler member variables
+    private Handler mBackgroundHandler;
+    private HandlerThread mBackgroundThread;
 
-    private static int averageIndex = 0;
-    private static final int averageArraySize = 4;
-    private static final int[] averageArray = new int[averageArraySize];
-    public static Context c;
+    //Heart rate detector member variables
+    public static int hrtratebpm;
+    private int mCurrentRollingAverage;
+    private int mLastRollingAverage;
+    private int mLastLastRollingAverage;
+    private long [] mTimeArray;
+    private int numCaptures = 0;
+    private int mNumBeats = 0;
+    TextView tv;
 
-
-    private static final AtomicBoolean processing = new AtomicBoolean(false);
-
-    private static double beats = 0;
-    private static long startTime = 0;
-    private static int beatsIndex = 0;
-    private static final int beatsArraySize = 3;
-    private static final int[] beatsArray = new int[beatsArraySize];
-
-    public enum TYPE {
-        GREEN, RED
-    };
-
-    private static TYPE currentType = TYPE.GREEN;
-
-    public static TYPE getCurrent() {
-        return currentType;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_measure);
-
-        mSurfaceView = (SurfaceView) findViewById(R.id.preview);
-        mSurfaceHolder = mSurfaceView.getHolder();
-        mSurfaceHolder.addCallback(this);
-        mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-
-        c = getApplicationContext();
+        textureView =  findViewById(R.id.preview);
+        assert textureView != null;
+        textureView.setSurfaceTextureListener(textureListener);
+        mTimeArray = new long [15];
+        tv = findViewById(R.id.textview);
     }
 
-    @Override
-    protected void onDestroy(){
-        super.onDestroy();
-        mSurfaceView.getHolder().removeCallback(this);
-    }
-
-    public void onPause() {
-        super.onPause();
-        if (mCamera != null) {
-            mCamera.setPreviewCallback(null);
-            mSurfaceView.getHolder().removeCallback(this);
-            mCamera.release();
+    TextureView.SurfaceTextureListener textureListener = new TextureView.SurfaceTextureListener() {
+        @Override
+        public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+            openCamera();
         }
-    }
-
-    /*private static Camera.Size getSmallestPreviewSize(int width, int height, Camera.Parameters parameters) {
-        Camera.Size result = null;
-        for (Camera.Size size : parameters.getSupportedPreviewSizes()) {
-            if (size.width <= width && size.height <= height) {
-                if (result == null) {
-                    result = size;
-                } else {
-                    int resultArea = result.width * result.height;
-                    int newArea = size.width * size.height;
-                    if (newArea < resultArea) result = size;
-                }
-            }
-        }
-        return result;
-    }*/
-
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        mCamera = Camera.open();
-        Camera.Parameters parameters = mCamera.getParameters();
-        if(parameters.getMaxExposureCompensation() != parameters.getMinExposureCompensation()){
-            parameters.setExposureCompensation(0);
-        }
-        /*if(parameters.isAutoExposureLockSupported()){
-            parameters.setAutoExposureLock(true);
-         }*/
-        /*if(parameters.isAutoWhiteBalanceLockSupported()){
-            parameters.setAutoWhiteBalanceLock(true);
-        }*/
-        mCamera.setParameters(parameters);
-        mCamera.setPreviewCallback(previewCallback);
-        startTime = System.currentTimeMillis();
-    }
-
-    @Override
-    public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3){
-        if (mPreviewRunning) {
-            mCamera.stopPreview();
-        }
-        Camera.Parameters p = mCamera.getParameters();
-        p.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
-        mCamera.setParameters(p);
-        try {
-            mCamera.setPreviewDisplay(arg0);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        setCameraDisplayOrientation(mCamera);
-
-        mCamera.startPreview();
-        mPreviewRunning = true;
-    }
-
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        mCamera.stopPreview();
-        mPreviewRunning = false;
-        mCamera.release();
-    }
-    public void setCameraDisplayOrientation(android.hardware.Camera camera) {
-        Camera.Parameters parameters = camera.getParameters();
-        android.hardware.Camera.CameraInfo camInfo = new android.hardware.Camera.CameraInfo();
-        android.hardware.Camera.getCameraInfo(0, camInfo);
-
-        Display display = ((WindowManager) this.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        int rotation = display.getRotation();
-        int degrees = 0;
-        switch (rotation) {
-            case Surface.ROTATION_0: degrees = 0; break;
-            case Surface.ROTATION_90: degrees = 90; break;
-            case Surface.ROTATION_180: degrees = 180; break;
-            case Surface.ROTATION_270: degrees = 270; break;
-        }
-
-        int result;
-        if (camInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            result = (camInfo.orientation + degrees) % 360;
-            result = (360 - result) % 360;  // compensate the mirror
-        } else {  // back-facing
-            result = (camInfo.orientation - degrees + 360) % 360;
-        }
-        camera.setDisplayOrientation(result);
-    }
-    private static PreviewCallback previewCallback = new PreviewCallback() {
-
 
         @Override
-        public void onPreviewFrame(byte[] data, Camera camera) {
-            if (data == null) throw new NullPointerException();
-            Camera.Size size = camera.getParameters().getPreviewSize();
-            if (size == null) throw new NullPointerException();
+        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+        }
 
-            if (!processing.compareAndSet(false, true)) return;
+        @Override
+        public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+            return false;
+        }
 
-            int width = size.width;
-            int height = size.height;
-
-            int imgAvg = ImageProcessing.decodeYUV420SPtoRedAvg(data.clone(), height, width);
-            // Log.i(TAG, "imgAvg="+imgAvg);
-            if (imgAvg == 0 || imgAvg == 255) {
-                processing.set(false);
-                return;
+        @Override
+        public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+            Log.d(TAG, "onSurfaceTextureUpdated");
+            Bitmap bmp = textureView.getBitmap();
+            int width = bmp.getWidth();
+            int height = bmp.getHeight();
+            int[] pixels = new int[height * width];
+            bmp.getPixels(pixels, 0, width, width / 2, height / 2, width / 20, height / 20);
+            int sum = 0;
+            for (int i = 0; i < height * width; i++) {
+                int red = (pixels[i] >> 16) & 0xFF;
+                sum = sum + red;
+            }
+            if (numCaptures == 20) {
+                mCurrentRollingAverage = sum;
             }
 
-            int averageArrayAvg = 0;
-            int averageArrayCnt = 0;
-            for (int i = 0; i < averageArray.length; i++) {
-                if (averageArray[i] > 0) {
-                    averageArrayAvg += averageArray[i];
-                    averageArrayCnt++;
-                }
+            else if (numCaptures > 20 && numCaptures < 49) {
+                mCurrentRollingAverage = (mCurrentRollingAverage*(numCaptures-20) + sum)/(numCaptures-19);
             }
 
-            int rollingAverage = (averageArrayCnt > 0) ? (averageArrayAvg / averageArrayCnt) : 0;
-            TYPE newType = currentType;
-            if (imgAvg < rollingAverage) {
-                newType = TYPE.RED;
-                if (newType != currentType) {
-                    beats++;
-                    Log.d("Beat", "BEAT!! beats="+beats);
-                }
-            } else if (imgAvg > rollingAverage) {
-                newType = TYPE.GREEN;
-            }
-
-            if (averageIndex == averageArraySize) averageIndex = 0;
-            averageArray[averageIndex] = imgAvg;
-            averageIndex++;
-
-            // Transitioned from one state to another to the same
-            if (newType != currentType) {
-                currentType = newType;
-                //mSurfaceView.postInvalidate();
-            }
-
-            long endTime = System.currentTimeMillis();
-            double totalTimeInSecs = (endTime - startTime) / 1000d;
-            if (totalTimeInSecs >= 10) {
-                double bps = (beats / totalTimeInSecs);
-                int dpm = (int) (bps * 60d);
-                if (dpm < 30 || dpm > 180) {
-                    startTime = System.currentTimeMillis();
-                    beats = 0;
-                    processing.set(false);
-                    Toast.makeText(c, "Press your finger gently", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                // Log.d(TAG,
-                // "totalTimeInSecs="+totalTimeInSecs+" beats="+beats);
-
-                if (beatsIndex == beatsArraySize) beatsIndex = 0;
-                beatsArray[beatsIndex] = dpm;
-                beatsIndex++;
-
-                int beatsArrayAvg = 0;
-                int beatsArrayCnt = 0;
-                for (int i = 0; i < beatsArray.length; i++) {
-                    if (beatsArray[i] > 0) {
-                        beatsArrayAvg += beatsArray[i];
-                        beatsArrayCnt++;
+            else if (numCaptures >= 49) {
+                mCurrentRollingAverage = (mCurrentRollingAverage*29 + sum)/30;
+                if (mLastRollingAverage > mCurrentRollingAverage && mLastRollingAverage > mLastLastRollingAverage && mNumBeats < 15) {
+                    mTimeArray[mNumBeats] = System.currentTimeMillis();
+                    mNumBeats++;
+                    if (mNumBeats == 15) {
+                        calcBPM();
                     }
                 }
-                int beatsAvg = (beatsArrayAvg / beatsArrayCnt);
-                Toast t = Toast.makeText(c, String.valueOf(beatsAvg), Toast.LENGTH_LONG);
-                t.show();
-                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(c);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("LAST_MEASURE", String.valueOf(beatsAvg));
-                editor.commit();
-                startTime = System.currentTimeMillis();
-                beats = 0;
             }
-            processing.set(false);
+
+            numCaptures++;
+            mLastLastRollingAverage = mLastRollingAverage;
+            mLastRollingAverage = mCurrentRollingAverage;
         }
     };
-
-    private final ImageReader.OnImageAvailableListener mOnImageAvailableListener = new ImageReader.OnImageAvailableListener() {
+    private final CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
         @Override
-        public void onImageAvailable(ImageReader reader) {
-            Image image = null;
-            try {
-                image = reader.acquireLatestImage();
-                if (image != null) {
-                    ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-                    Bitmap bitmap = fromByteBuffer(buffer);
-                    image.close();
-                }
-            } catch (Exception e) {
-                Log.w("Reader error", e.getMessage());
-            }
+        public void onOpened(CameraDevice camera) {
+            Log.e(TAG, "onOpened");
+            cameraDevice = camera;
+            createCameraPreview();
+        }
+
+        @Override
+        public void onDisconnected(CameraDevice camera) {
+            cameraDevice.close();
+        }
+
+        @Override
+        public void onError(CameraDevice camera, int error) {
+            if (cameraDevice != null)
+                cameraDevice.close();
+            cameraDevice = null;
         }
     };
 
-    Bitmap fromByteBuffer(ByteBuffer buffer) {
-        byte[] bytes = new byte[buffer.capacity()];
-        buffer.get(bytes, 0, bytes.length);
-        return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+    // onResume
+    protected void startBackgroundThread() {
+        mBackgroundThread = new HandlerThread("Camera Background");
+        mBackgroundThread.start();
+        mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
+    }
+    // onPause
+    protected void stopBackgroundThread() {
+        mBackgroundThread.quitSafely();
+        try {
+            mBackgroundThread.join();
+            mBackgroundThread = null;
+            mBackgroundHandler = null;
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
+    private void calcBPM() {
+        int med;
+        long [] timedist = new long [14];
+        for (int i = 0; i < 14; i++) {
+            timedist[i] = mTimeArray[i+1] - mTimeArray[i];
+        }
+        Arrays.sort(timedist);
+        med = (int) timedist[timedist.length/2];
+        hrtratebpm= 60000/med;
+        addTodb();
+
+
+    }
+    private void addTodb()
+    {
+        Log.d("YAYYY","YAYYYYYYYYYAAAAAAAA="+hrtratebpm);
+        Toast.makeText(this, "" + hrtratebpm, Toast.LENGTH_SHORT).show();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(MeasureActivity.this);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("LAST_MEASURE", String.valueOf(hrtratebpm));
+        editor.apply();
+
+        TextView tv = (TextView)findViewById(R.id.textview);
+        tv.setText("Heart Rate = "+hrtratebpm+" BPM");
+    }
+
+    protected void createCameraPreview() {
+        try {
+            SurfaceTexture texture = textureView.getSurfaceTexture();
+            assert texture != null;
+            texture.setDefaultBufferSize(imageDimension.getWidth(), imageDimension.getHeight());
+            Surface surface = new Surface(texture);
+            captureRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+            captureRequestBuilder.addTarget(surface);
+            cameraDevice.createCaptureSession(Arrays.asList(surface), new CameraCaptureSession.StateCallback() {
+                @Override
+                public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
+                    if (null == cameraDevice) {
+                        return;
+                    }
+                    cameraCaptureSessions = cameraCaptureSession;
+                    updatePreview();
+                }
+
+                @Override
+                public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
+                    Toast.makeText(MeasureActivity.this, "Configuration change", Toast.LENGTH_SHORT).show();
+                }
+            }, null);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+    }
+    // Opening the rear-facing camera for use
+    private void openCamera() {
+        CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+        Log.e(TAG, "is camera open");
+        try {
+            cameraId = manager.getCameraIdList()[0];
+            CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
+            StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+            assert map != null;
+            imageDimension = map.getOutputSizes(SurfaceTexture.class)[0];
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(MeasureActivity.this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+                return;
+            }
+            manager.openCamera(cameraId, stateCallback, null);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+        Log.e(TAG, "openCamera X");
+    }
+    protected void updatePreview() {
+        if (null == cameraDevice) {
+            Log.e(TAG, "updatePreview error, return");
+        }
+        captureRequestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+        captureRequestBuilder.set(CaptureRequest.FLASH_MODE, CameraMetadata.FLASH_MODE_TORCH);
+        try {
+            cameraCaptureSessions.setRepeatingRequest(captureRequestBuilder.build(), null, mBackgroundHandler);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+    }
+    private void closeCamera() {
+        if (null != cameraDevice) {
+            cameraDevice.close();
+            cameraDevice = null;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+            if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                // close the app
+                Toast.makeText(MeasureActivity.this, "Sorry!!!, you can't use this app without granting permission", Toast.LENGTH_LONG).show();
+                finish();
+            }
+        }
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.e(TAG, "onResume");
+        startBackgroundThread();
+        if (textureView.isAvailable()) {
+            openCamera();
+        } else {
+            textureView.setSurfaceTextureListener(textureListener);
+        }
+    }
+    @Override
+    protected void onPause() {
+        Log.e(TAG, "onPause");
+        closeCamera();
+        stopBackgroundThread();
+        super.onPause();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
 }
+class HeartRate
+{
+    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+    int heartrate = MeasureActivity.hrtratebpm;
+
+//    int
+}
+

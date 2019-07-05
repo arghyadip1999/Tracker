@@ -177,20 +177,29 @@ public class MeasureActivity extends AppCompatActivity {
         Arrays.sort(timedist);
         med = (int) timedist[timedist.length/2];
         hrtratebpm= 60000/med;
-        addTodb();
+        saveReadings();
 
 
     }
-    private void addTodb()
+    private void saveReadings()
     {
-        Log.d("YAYYY","YAYYYYYYYYYAAAAAAAA="+hrtratebpm);
+        if(hrtratebpm < 40 ){
+            Toast.makeText(this, "Place finger correctly", Toast.LENGTH_SHORT).show();
+            TextView tv = findViewById(R.id.textview);
+            tv.setText("Place finger correctly");
+            return;
+        }
+
+        if(hrtratebpm > 110)
+            hrtratebpm /= 2;
+        Log.d("Result","Beats="+hrtratebpm);
         Toast.makeText(this, "" + hrtratebpm, Toast.LENGTH_SHORT).show();
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(MeasureActivity.this);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("LAST_MEASURE", String.valueOf(hrtratebpm));
         editor.apply();
 
-        TextView tv = (TextView)findViewById(R.id.textview);
+        TextView tv = findViewById(R.id.textview);
         tv.setText("Heart Rate = "+hrtratebpm+" BPM");
     }
 
@@ -299,11 +308,3 @@ public class MeasureActivity extends AppCompatActivity {
         super.onStop();
     }
 }
-class HeartRate
-{
-    Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-    int heartrate = MeasureActivity.hrtratebpm;
-
-//    int
-}
-
